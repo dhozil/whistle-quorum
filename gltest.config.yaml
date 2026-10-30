@@ -1,0 +1,16 @@
+networks:
+  default: studionet
+  studionet:
+    accounts:
+      - "${ACCOUNT_PRIVATE_KEY_1}"
+      - "${ACCOUNT_PRIVATE_KEY_2}"
+      - "${ACCOUNT_PRIVATE_KEY_3}"
+  testnet_bradbury:
+    accounts:
+      - "${ACCOUNT_PRIVATE_KEY_1}"
+
+paths:
+  contracts: contracts
+  artifacts: artifacts
+
+environment: .env
