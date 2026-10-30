@@ -500,7 +500,6 @@ class WhistleQuorum(gl.Contract):
         appeal_window_seconds: u256,
         fee_bps: u256,
     ) -> None:
-        self._require_admin()
         self._add_rulebook(
             rulebook_id,
             sport,
@@ -582,7 +581,6 @@ class WhistleQuorum(gl.Contract):
         kickoff_iso: str,
         official_url: str,
     ) -> None:
-        self._require_admin()
         mid = _norm_id(match_id, 64)
         self._require(mid != "", "match id is required")
         self._require(mid not in self.matches, "match already exists")

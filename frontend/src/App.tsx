@@ -181,7 +181,6 @@ export default function App() {
             rulebooks={desk.rulebooks}
             disputes={desk.disputes}
             address={wallet.address}
-            admin={desk.stats?.admin}
             onOpenCreate={() => setModal("match")}
             onFile={(match) => openFile(match)}
             onOpenDispute={(dispute) => {
@@ -194,8 +193,6 @@ export default function App() {
         {tab === "rulebooks" && (
           <RulebooksView
             rulebooks={desk.rulebooks}
-            address={wallet.address}
-            admin={desk.stats?.admin}
             onOpenCreate={() => setModal("rulebook")}
           />
         )}

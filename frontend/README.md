@@ -13,7 +13,7 @@ npm run lint     # oxlint
 
 | Variable | Default | Notes |
 | --- | --- | --- |
-| `VITE_CONTRACT_ADDRESS` | `0x9867e509d2EbC8b8646CE6605DC550347FDedE02` | Deployed instance |
+| `VITE_CONTRACT_ADDRESS` | `0x9AC4870f593A41D261DAF861387737c6766ACb22` | Deployed instance |
 | `VITE_RPC_URL` | `https://studio.genlayer.com/api` | StudioNet JSON-RPC |
 | `VITE_NETWORK` | `studionet` | Informational |
 

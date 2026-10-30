@@ -94,19 +94,19 @@ export function finalExplanation(dispute: Dispute): string {
   const outcome = dispute.final_outcome || dispute.outcome;
   if (dispute.status === "SETTLED") {
     if (outcome === "INCONCLUSIVE") {
-      return "Penjelasan akhir: panel menilai bukti yang diajukan tidak cukup kuat untuk menentukan apakah peristiwa berlangsung atau tidak. Karena tidak ada kesalahan yang dapat dibuktikan dari bukti tersebut, kedua pihak mengembalikan bond mereka dan kasus ditutup tanpa ada pihak yang menang.";
+      return "Final explanation: the panel assessed the submitted evidence as insufficient to determine whether the incident occurred. Because no fault could be proven from that evidence, both parties refunded their bonds and the case was closed with no winner.";
     }
     const upheld = outcome === "CLAIM_UPHELD";
     const action = dispute.final_action || dispute.recommended_action;
-    return `Penjelasan akhir: berdasarkan bukti yang divalidasi para validator, keputusan akhir menyimpulkan bahwa klaim ${upheld ? "didasuhkan" : "ditolak"}. Tindakan yang berlaku adalah ${action}. Setelah penyelesaian, bond potensi hadiah telah didelegasikan sesuai hasil akhir.`;
+    return `Final explanation: based on the evidence validated by the panel, the final decision concluded that the claim was ${upheld ? "upheld" : "rejected"}. The applied action was ${action}. After settlement, the potential prize bond was disbursed according to the final result.`;
   }
   if (dispute.status === "FINAL") {
     if (outcome === "INCONCLUSIVE") {
-      return "Penjelasan akhir: keputusan akhir setelah sidang banding menyatakan bahwa bukti yang ada tidak memadai untuk menentukan pihak mana yang benar. Tidak ada pihak yang menang; kedua bond dikembalikan kepada pihak yang mengajukan klaim.";
+      return "Final explanation: the final decision after the appeal review stated that the available evidence was insufficient to determine which party was right. No party won; both bonds were returned to the party that filed the claim.";
     }
-    const stance = outcome === "CLAIM_UPHELD" ? "dipertahankan" : "dikalahkan";
+    const stance = outcome === "CLAIM_UPHELD" ? "upheld" : "rejected";
     const action = dispute.final_action || dispute.recommended_action;
-    return `Penjelasan akhir: keputusan akhir setelah sidang banding menyimpulkan bahwa klaim awal ${stance}. Tindakan final yang berlaku adalah ${action}.`;
+    return `Final explanation: the final decision after the appeal review concluded that the original claim was ${stance}. The final action that applied was ${action}.`;
   }
   return "";
 }

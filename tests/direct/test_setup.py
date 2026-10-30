@@ -25,27 +25,25 @@ def test_deploy_seeds_two_rulebooks(direct_deploy):
     assert book["appeal_bond"] == str(2 * GEN)
 
 
-def test_create_match_admin_only(direct_vm, direct_deploy, direct_owner, direct_alice, direct_bob):
+def test_create_match_open_to_any_user(direct_vm, direct_deploy, direct_owner, direct_alice, direct_bob):
     contract = deploy(direct_deploy)
 
+    # Fixture creation is open to any connected user, not only the admin.
     direct_vm.sender = direct_alice
-    with direct_vm.expect_revert("admin only"):
-        contract.create_match(
-            "match-1",
-            RULEBOOK,
-            "Test Cup",
-            "Rovers",
-            "United",
-            addr(direct_alice),
-            addr(direct_bob),
-            "2026-10-29T19:00:00Z",
-            OFFICIAL_URL,
-        )
-
-    create_match(contract, direct_vm, direct_owner, direct_alice, direct_bob)
+    contract.create_match(
+        "match-1",
+        RULEBOOK,
+        "Test Cup",
+        "Rovers",
+        "United",
+        addr(direct_alice),
+        addr(direct_bob),
+        "2026-10-29T19:00:00Z",
+        OFFICIAL_URL,
+    )
     match = contract.get_match("match-1")
     assert match["home_team"] == "Rovers"
-    assert match["away_rep"] == addr(direct_bob)
+    assert match["home_rep"] == addr(direct_alice)
 
 
 def test_duplicate_match_rejected(direct_vm, direct_deploy, direct_owner, direct_alice, direct_bob):

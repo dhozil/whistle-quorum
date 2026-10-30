@@ -8,7 +8,6 @@ interface Props {
   rulebooks: Rulebook[];
   disputes: Dispute[];
   address: string | null;
-  admin: string | undefined;
   onOpenCreate: () => void;
   onFile: (match?: Match) => void;
   onOpenDispute: (dispute: Dispute) => void;
@@ -19,13 +18,10 @@ export function MatchesView({
   rulebooks,
   disputes,
   address,
-  admin,
   onOpenCreate,
   onFile,
   onOpenDispute,
 }: Props) {
-  const isAdmin = address?.toLowerCase() === admin?.toLowerCase();
-
   return (
     <section className="page">
       <div className="page__head">
@@ -37,17 +33,15 @@ export function MatchesView({
             dispute for that match.
           </p>
         </div>
-        {isAdmin && (
-          <button className="btn btn--primary" onClick={onOpenCreate}>
-            <Plus size={15} /> Create fixture
-          </button>
-        )}
+        <button className="btn btn--primary" onClick={onOpenCreate}>
+          <Plus size={15} /> Create fixture
+        </button>
       </div>
 
       {matches.length === 0 ? (
         <EmptyState
           title="No fixtures yet"
-          body="The judge registers a fixture before anyone can file a dispute. Connect the judge wallet to create the first one."
+          body="Anyone can register a fixture; registered representatives then file disputes from it. Connect a wallet to create the first one."
         />
       ) : (
         <div className="fixtures">

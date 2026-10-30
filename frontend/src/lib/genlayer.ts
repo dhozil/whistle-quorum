@@ -3,7 +3,7 @@ import { studionet } from "genlayer-js/chains";
 import { TransactionStatus, type GenLayerClient, type GenLayerTransaction } from "genlayer-js/types";
 
 export const CONTRACT_ADDRESS = (import.meta.env.VITE_CONTRACT_ADDRESS ||
-  "0x9867e509d2EbC8b8646CE6605DC550347FDedE02") as `0x${string}`;
+  "0x9AC4870f593A41D261DAF861387737c6766ACb22") as `0x${string}`;
 
 export const RPC_URL = import.meta.env.VITE_RPC_URL || "https://studio.genlayer.com/api";
 export const EXPLORER_URL = "https://genlayer-explorer.vercel.app";

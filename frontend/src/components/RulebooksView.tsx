@@ -5,13 +5,10 @@ import { EmptyState } from "./ui";
 
 interface Props {
   rulebooks: Rulebook[];
-  address: string | null;
-  admin: string | undefined;
   onOpenCreate: () => void;
 }
 
-export function RulebooksView({ rulebooks, address, admin, onOpenCreate }: Props) {
-  const isAdmin = address?.toLowerCase() === admin?.toLowerCase();
+export function RulebooksView({ rulebooks, onOpenCreate }: Props) {
 
   return (
     <section className="page">
@@ -24,11 +21,9 @@ export function RulebooksView({ rulebooks, address, admin, onOpenCreate }: Props
             windows. Federations can register their own; the panel may not invent rules outside it.
           </p>
         </div>
-        {isAdmin && (
-          <button className="btn btn--primary" onClick={onOpenCreate}>
-            <Plus size={15} /> Register rulebook
-          </button>
-        )}
+        <button className="btn btn--primary" onClick={onOpenCreate}>
+          <Plus size={15} /> Register rulebook
+        </button>
       </div>
 
       {rulebooks.length === 0 ? (

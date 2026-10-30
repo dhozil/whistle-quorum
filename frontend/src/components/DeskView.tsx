@@ -77,7 +77,6 @@ export function DeskView({
 
   const open = disputes.filter((d) => d.status === "FILED" || d.status === "APPEALED").length;
   const reviewed = disputes.filter((d) => d.status !== "FILED").length;
-  const isAdmin = address?.toLowerCase() === stats?.admin.toLowerCase();
   const isRep = matches.some(
     (match) =>
       match.home_rep.toLowerCase() === address?.toLowerCase() ||
@@ -104,11 +103,9 @@ export function DeskView({
             <button className="btn btn--primary" onClick={onFile} disabled={!address}>
               <Plus size={15} /> File a dispute
             </button>
-            {isAdmin && (
-              <button className="btn btn--ghost" onClick={onCreateMatch}>
-                Create fixture
-              </button>
-            )}
+            <button className="btn btn--ghost" onClick={onCreateMatch}>
+              Create fixture
+            </button>
             <span className="desk__hint">
               {address
                 ? isRep
