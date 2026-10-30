@@ -1,4 +1,4 @@
-# Whistle Quorum - web client
+# Whistle Quorum - frontend client
 
 Vite + React + TypeScript front end for the `WhistleQuorum` contract on StudioNet.
 
@@ -17,7 +17,7 @@ npm run lint     # oxlint
 | `VITE_RPC_URL` | `https://studio.genlayer.com/api` | StudioNet JSON-RPC |
 | `VITE_NETWORK` | `studionet` | Informational |
 
-Put overrides in `web/.env.local`.
+Put overrides in `frontend/.env.local`.
 
 Reads need no wallet. Writes use an injected EIP-1193 wallet (MetaMask, Rabby, …) and the
 app switches it to StudioNet (`chain 61999`) before sending.

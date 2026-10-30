@@ -97,7 +97,7 @@ address and is updated only in `settle`.
 contracts/whistle_quorum.py      the intelligent contract (single file, no imports beyond GenVM)
 tests/direct/                    34 fast direct-mode tests (pytest, mocked web + LLM)
 tests/integration/               StudioNet smoke test (real consensus, real fetch)
-web/                             React frontend (Vite)
+frontend/                        React frontend (Vite)
 docs/                            architecture and evidence policy
 gltest.config.yaml               StudioNet network + env-var accounts for gltest
 ```

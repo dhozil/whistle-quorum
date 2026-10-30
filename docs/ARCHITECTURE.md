@@ -156,7 +156,7 @@ they do not eliminate it.
 
 ## 5. Frontend architecture
 
-`web/src`:
+`frontend/src`:
 
 - `lib/genlayer.ts` — one read client, one write client factory bound to the injected
   wallet, `readContract`/`sendTransaction` helpers, error normalisation, long receipt
