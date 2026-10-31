@@ -16,7 +16,7 @@ FILED ──review_dispute──▶ DECIDED ──appeal──▶ APPEALED ─�
                                                                          SETTLED
 ```
 
-- **Deployed contract (StudioNet):** [`0x9AC4870f593A41D261DAF861387737c6766ACb22`](https://genlayer-explorer.vercel.app)
+- **Deployed contract (StudioNet):** [`0x49573Abea978E05c9AA2133c27cf1FB456b80792`](https://genlayer-explorer.vercel.app)
 - **Frontend:** Vite + React + TypeScript, `genlayer-js` for reads and injected-wallet writes
 - **Contract:** `contracts/whistle_quorum.py`, GenVM `py-genlayer` runner pinned in the header
 
