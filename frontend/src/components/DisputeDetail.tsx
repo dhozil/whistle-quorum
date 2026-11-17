@@ -1,4 +1,5 @@
-import { ExternalLink, FileText, ShieldAlert, Stamp, Gavel, ArrowUpRight } from "lucide-react";
+import { useState } from "react";
+import { Check, Copy, Download, ExternalLink, FileText, ShieldAlert, Stamp, Gavel, ArrowUpRight } from "lucide-react";
 import type { Dispute, Match, Rulebook } from "../lib/types";
 import {
   domainOf,
@@ -12,6 +13,7 @@ import {
   shortAddress,
   timeAgo,
 } from "../lib/format";
+import { CONTRACT_ADDRESS } from "../lib/genlayer";
 import { ConfidenceMeter, OutcomePill, StatusChip } from "./ui";
 
 export type DeskAction =
@@ -57,10 +59,42 @@ function EvidenceList({ urls, evidenceHashes }: { urls: string[]; evidenceHashes
 }
 
 export function DisputeDetail({ dispute, match, rulebook, address, admin, busy, onAction }: Props) {
+  const [copied, setCopied] = useState(false);
   const isFiler = address?.toLowerCase() === dispute.filed_by.toLowerCase();
   const isRespondent = address?.toLowerCase() === dispute.respondent.toLowerCase();
   const isParty = isFiler || isRespondent;
   const isAdmin = address?.toLowerCase() === admin?.toLowerCase();
+
+  const copyCaseLink = async () => {
+    const url = `${window.location.origin}${window.location.pathname}#desk/case/${encodeURIComponent(dispute.dispute_id)}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      // Clipboard may be unavailable in non-secure contexts.
+    }
+  };
+
+  const exportReport = () => {
+    const report = {
+      exported_at: new Date().toISOString(),
+      network: "studionet",
+      contract_address: CONTRACT_ADDRESS,
+      dispute,
+      match: match ?? null,
+      rulebook: rulebook ?? null,
+    };
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${dispute.dispute_id.replace(/[^a-zA-Z0-9_.-]/g, "_")}-report.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
   const now = Date.now() / 1000;
   const reviewReady = now >= dispute.review_after;
   const appealDeadline = dispute.reviewed_at + (rulebook?.appeal_window_seconds ?? 0);
@@ -106,6 +140,14 @@ export function DisputeDetail({ dispute, match, rulebook, address, admin, busy, 
         </div>
         <div className="detail__status">
           <StatusChip status={dispute.status} />
+          <div className="detail__tools">
+            <button className="mini-link mini-link--btn" onClick={() => void copyCaseLink()} title="Copy shareable case link">
+              {copied ? <Check size={12} /> : <Copy size={12} />} {copied ? "Copied" : "Copy link"}
+            </button>
+            <button className="mini-link mini-link--btn" onClick={exportReport} title="Download case audit report (JSON)">
+              <Download size={12} /> Export report
+            </button>
+          </div>
           {match?.official_url && (
             <a className="mini-link" href={match.official_url} target="_blank" rel="noreferrer">
               Official page <ArrowUpRight size={12} />

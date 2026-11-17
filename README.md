@@ -124,11 +124,13 @@ gltest tests/integration -v -s
 ### 3. Frontend
 
 ```powershell
-cd web
+cd frontend
 npm install
 npm run dev        # http://127.0.0.1:5173
 npm run build      # type-check + production bundle
 ```
+
+**New in this milestone:** shareable deep links for cases, one-click audit report export (JSON), and a participant dashboard (reputation, claimable balance, withdraw, and case history).
 
 ---
 

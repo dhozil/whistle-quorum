@@ -1,12 +1,13 @@
 import { Coins, LogOut, Wallet } from "lucide-react";
 import { formatGen, shortAddress } from "../lib/format";
 
-export type Tab = "desk" | "matches" | "rulebooks" | "guide";
+export type Tab = "desk" | "matches" | "rulebooks" | "account" | "guide";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "desk", label: "Match desk" },
   { id: "matches", label: "Fixtures" },
   { id: "rulebooks", label: "Rulebooks" },
+  { id: "account", label: "My account" },
   { id: "guide", label: "How it works" },
 ];
 

@@ -4,6 +4,7 @@ import { DeskView } from "./components/DeskView";
 import { MatchesView } from "./components/MatchesView";
 import { RulebooksView } from "./components/RulebooksView";
 import { GuideView } from "./components/GuideView";
+import { AccountView } from "./components/AccountView";
 import {
   AddRulebookModal,
   AppealModal,
@@ -18,11 +19,25 @@ import type { Dispute, Match } from "./lib/types";
 
 type ModalKind = "file" | "counter" | "appeal" | "match" | "rulebook" | null;
 
-const TAB_IDS: Tab[] = ["desk", "matches", "rulebooks", "guide"];
+const TAB_IDS: Tab[] = ["desk", "matches", "rulebooks", "account", "guide"];
 
-function tabFromHash(fallback: Tab = "desk"): Tab {
-  const value = window.location.hash.replace(/^#\/?/, "");
-  return TAB_IDS.includes(value as Tab) ? (value as Tab) : fallback;
+function parseHash(): { tab: Tab; caseId: string | null } {
+  const raw = window.location.hash.replace(/^#\/?/, "");
+  const [head, sub, ...rest] = raw.split("/");
+  const tab = TAB_IDS.includes(head as Tab) ? (head as Tab) : "desk";
+  if (tab === "desk" && sub === "case" && rest.length > 0) {
+    try {
+      return { tab, caseId: decodeURIComponent(rest.join("/")) };
+    } catch {
+      return { tab, caseId: rest.join("/") };
+    }
+  }
+  return { tab, caseId: null };
+}
+
+function makeHash(tab: Tab, caseId?: string | null): string {
+  if (tab === "desk" && caseId) return `#desk/case/${encodeURIComponent(caseId)}`;
+  return `#${tab}`;
 }
 
 interface Toast {
@@ -31,14 +46,25 @@ interface Toast {
 }
 
 export default function App() {
-  const [tab, setTabState] = useState<Tab>(() => tabFromHash());
+  const initial = parseHash();
+  const [tab, setTabState] = useState<Tab>(initial.tab);
+  const [selectedId, setSelectedId] = useState<string | null>(initial.caseId);
   const setTab = (next: Tab) => {
     setTabState(next);
-    if (window.location.hash !== `#${next}`) {
-      window.history.replaceState(null, "", `#${next}`);
+    const nextHash = makeHash(next, next === "desk" ? selectedId : null);
+    if (window.location.hash !== nextHash) {
+      window.history.replaceState(null, "", nextHash);
     }
   };
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selectDispute = (id: string | null) => {
+    setSelectedId(id);
+    if (tab === "desk") {
+      const nextHash = makeHash("desk", id);
+      if (window.location.hash !== nextHash) {
+        window.history.replaceState(null, "", nextHash);
+      }
+    }
+  };
   const [modal, setModal] = useState<ModalKind>(null);
   const [actionDispute, setActionDispute] = useState<Dispute | null>(null);
   const [initialMatch, setInitialMatch] = useState<string | undefined>();
@@ -51,11 +77,23 @@ export default function App() {
   const { claimable, reputation } = useAccountData(wallet.address, version + desk.lastLoaded);
 
   useEffect(() => {
-    if (!selectedId && desk.disputes.length) setSelectedId(desk.disputes[0].dispute_id);
+    if (!desk.disputes.length) return;
+    const hash = parseHash();
+    if (hash.caseId && desk.disputes.some((d) => d.dispute_id === hash.caseId)) {
+      if (selectedId !== hash.caseId) setSelectedId(hash.caseId);
+      return;
+    }
+    if (!selectedId || !desk.disputes.some((d) => d.dispute_id === selectedId)) {
+      setSelectedId(desk.disputes[0].dispute_id);
+    }
   }, [desk.disputes, selectedId]);
 
   useEffect(() => {
-    const onHash = () => setTabState(tabFromHash());
+    const onHash = () => {
+      const next = parseHash();
+      setTabState(next.tab);
+      if (next.tab === "desk" && next.caseId) setSelectedId(next.caseId);
+    };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
@@ -166,7 +204,7 @@ export default function App() {
             error={desk.error}
             lastLoaded={desk.lastLoaded}
             selectedId={selectedId}
-            onSelect={setSelectedId}
+            onSelect={selectDispute}
             onRefresh={() => void desk.refresh()}
             onFile={() => openFile()}
             onCreateMatch={() => setModal("match")}
@@ -184,8 +222,12 @@ export default function App() {
             onOpenCreate={() => setModal("match")}
             onFile={(match) => openFile(match)}
             onOpenDispute={(dispute) => {
-              setSelectedId(dispute.dispute_id);
+              selectDispute(dispute.dispute_id);
               setTab("desk");
+              const nextHash = makeHash("desk", dispute.dispute_id);
+              if (window.location.hash !== nextHash) {
+                window.history.replaceState(null, "", nextHash);
+              }
             }}
           />
         )}
@@ -194,6 +236,27 @@ export default function App() {
           <RulebooksView
             rulebooks={desk.rulebooks}
             onOpenCreate={() => setModal("rulebook")}
+          />
+        )}
+
+        {tab === "account" && (
+          <AccountView
+            address={wallet.address}
+            claimable={claimable}
+            reputation={reputation}
+            disputes={desk.disputes}
+            matches={desk.matches}
+            onConnect={() => void wallet.connect()}
+            onWithdraw={() => void handleWithdraw()}
+            withdrawing={busy === "withdraw"}
+            onOpenDispute={(dispute) => {
+              selectDispute(dispute.dispute_id);
+              setTab("desk");
+              const nextHash = makeHash("desk", dispute.dispute_id);
+              if (window.location.hash !== nextHash) {
+                window.history.replaceState(null, "", nextHash);
+              }
+            }}
           />
         )}
 

@@ -897,6 +897,25 @@ ol {
   gap: 8px;
 }
 
+.detail__tools {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.mini-link--btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+}
+
+.mini-link--btn:hover {
+  color: var(--yellow);
+}
+
 .mini-link {
   display: inline-flex;
   align-items: center;
@@ -2096,6 +2115,81 @@ ol {
 
 .toast__close:hover {
   color: var(--chalk);
+}
+
+/* ---------- account ------------------------------------------------------ */
+
+.account-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 14px;
+}
+
+.account-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 12px;
+  margin: 12px 0 10px;
+}
+
+.account-stats strong {
+  display: block;
+  font-family: var(--display);
+  font-size: 30px;
+  line-height: 1;
+}
+
+.panel--claim .claim-amount {
+  margin: 8px 0 6px;
+  font-family: var(--display);
+  font-size: 38px;
+  line-height: 1;
+  color: var(--green);
+}
+
+.panel--claim .btn {
+  margin-top: 12px;
+}
+
+.account-cases {
+  display: grid;
+  gap: 10px;
+}
+
+.account-case {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  text-align: left;
+  transition: border-color 140ms ease, background 140ms ease;
+}
+
+.account-case:hover {
+  border-color: var(--line-strong);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.account-case__top,
+.account-case__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.account-case__main {
+  display: grid;
+  gap: 2px;
+}
+
+.account-case__main strong {
+  font-family: var(--display);
+  font-size: 22px;
+  line-height: 1.1;
+  text-transform: uppercase;
 }
 
 /* ---------- footer ------------------------------------------------------- */
