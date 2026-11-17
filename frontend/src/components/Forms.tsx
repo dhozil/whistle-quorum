@@ -244,6 +244,12 @@ export function AppealModal({ dispute, rulebook, onClose, onSubmit }: AppealProp
   const [grounds, setGrounds] = useState("");
   const bond = BigInt(rulebook?.appeal_bond ?? "0");
   const { busy, error, run } = useSubmit(onClose);
+  const known = new Set([
+    ...dispute.evidence_urls,
+    ...dispute.counter_evidence_urls,
+  ].map((u) => u.trim()).filter(Boolean));
+  const entered = parseUrls(urls);
+  const freshCount = entered.filter((u) => !known.has(u)).length;
 
   return (
     <Modal
@@ -270,14 +276,21 @@ export function AppealModal({ dispute, rulebook, onClose, onSubmit }: AppealProp
         }}
       >
         <p className="form__note form__note--top">
-          An appeal needs at least one new URL that was not part of the first review. The panel applies a{" "}
-          <strong>clear and convincing</strong> standard: the first decision stands unless the new evidence
+          An appeal needs <strong>at least one new URL</strong> that was not part of the first review record. The panel
+          applies a <strong>clear and convincing</strong> standard: the first decision stands unless the new evidence
           clearly shows a material error.
         </p>
-        <Field label="New evidence URLs" full hint="Up to 4 public HTTPS links.">
-          <TextArea rows={3} value={urls} onChange={(e) => setUrls(e.target.value)} required />
+        <Field label="Evidence already on record" full hint="These URLs were part of the first review and cannot count as new appeal evidence.">
+          <div className="known-urls">
+            {known.size === 0 ? <span className="muted small">None recorded.</span> : Array.from(known).map((u) => (
+              <code key={u} className="known-url">{u}</code>
+            ))}
+          </div>
         </Field>
-        <Field label="Grounds for appeal" full hint="10–600 characters.">
+        <Field label="New evidence URLs" full hint={`Up to 4 public HTTPS links. New URLs detected: ${freshCount}.`}>
+          <TextArea rows={3} value={urls} onChange={(e) => setUrls(e.target.value)} required placeholder="https://…" />
+        </Field>
+        <Field label="Grounds for appeal" full hint="10–600 characters. Explain what material error the new evidence shows.">
           <TextArea
             rows={3}
             minLength={10}
@@ -287,6 +300,9 @@ export function AppealModal({ dispute, rulebook, onClose, onSubmit }: AppealProp
             required
           />
         </Field>
+        {entered.length > 0 && freshCount === 0 && (
+          <p className="note note--error">At least one URL must be new (not in the record above), or the contract will reject the appeal.</p>
+        )}
         {error && <ErrorNote>{error}</ErrorNote>}
       </form>
     </Modal>

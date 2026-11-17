@@ -187,6 +187,21 @@ export function DisputeDetail({ dispute, match, rulebook, address, admin, busy, 
         </li>
       </ol>
 
+      {dispute.status === "DECIDED" && (
+        <div className={`appeal-banner ${appealOpen ? "appeal-banner--open" : "appeal-banner--closed"}`}>
+          <div>
+            <p className="kicker">Appeal window</p>
+            <strong>{appealOpen ? "Open for parties" : "Closed"}</strong>
+            <p className="muted small">
+              {appealOpen
+                ? `Either party may appeal until ${formatTimestamp(appealDeadline)} (~${hoursLeft(appealDeadline)}h left). An appeal requires new evidence and a higher bond.`
+                : `The appeal window ended at ${formatTimestamp(appealDeadline)}. If no appeal was filed, finalize then settle.`}
+            </p>
+          </div>
+          {rulebook && <span className="appeal-banner__bond">Appeal bond {formatGen(rulebook.appeal_bond)}</span>}
+        </div>
+      )}
+
       <section
         className="verdict-card"
         data-tone={tone}
@@ -251,16 +266,29 @@ export function DisputeDetail({ dispute, match, rulebook, address, admin, busy, 
               </p>
             )}
 
-            {dispute.appeal_result && (
-              <p className="verdict-card__appeal" data-result={dispute.appeal_result.toLowerCase()}>
-                <Gavel size={14} />
-                <span>
-                  Appeal <strong>{titleCase(dispute.appeal_result)}</strong>.{" "}
-                  {dispute.appeal_result === "REVERSED"
-                    ? "The new evidence met the clear-and-convincing standard and the first decision was overturned."
-                    : "The first decision stands; the new evidence did not meet the clear-and-convincing standard."}
-                </span>
-              </p>
+            {(dispute.appeal_result || (dispute.appealed_at > 0 && dispute.finalized_at > 0)) && (
+              <div className="appeal-compare">
+                <div className="appeal-compare__col">
+                  <p className="kicker">First-instance decision</p>
+                  <OutcomePill outcome={dispute.outcome} />
+                  <p className="appeal-compare__meta">
+                    Action <strong>{titleCase(dispute.recommended_action || "—")}</strong> · Confidence <strong>{dispute.confidence}/100</strong> · {titleCase(dispute.evidence_quality || "—")}
+                  </p>
+                </div>
+                <div className="appeal-compare__arrow">→</div>
+                <div className="appeal-compare__col appeal-compare__col--final">
+                  <p className="kicker">Decision on appeal</p>
+                  <OutcomePill outcome={dispute.final_outcome || dispute.outcome} />
+                  <p className="appeal-compare__meta">
+                    Result <strong>{titleCase(dispute.appeal_result || "—")}</strong> · Final action <strong>{titleCase(dispute.final_action || dispute.recommended_action || "—")}</strong>
+                  </p>
+                  <p className="muted small">
+                    {dispute.appeal_result === "REVERSED"
+                      ? "New evidence met the clear-and-convincing standard and overturned the first decision."
+                      : "The first decision stands; the appeal did not meet the higher burden."}
+                  </p>
+                </div>
+              </div>
             )}
 
             <div className="verdict-card__cols">
@@ -385,14 +413,14 @@ export function DisputeDetail({ dispute, match, rulebook, address, admin, busy, 
         <div>
           <p className="kicker">Next move</p>
           <p className="muted small">
-            {dispute.status === "FILED" && "Any account can trigger the review once the window closes."}
+            {dispute.status === "FILED" && "Any account can trigger the review once the counter-evidence window closes."}
             {dispute.status === "DECIDED" &&
               (appealOpen
-                ? `Either party may appeal until ${formatTimestamp(appealDeadline)} (${hoursLeft(appealDeadline)}h left).`
+                ? `Either filing party or respondent may appeal with new evidence until ${formatTimestamp(appealDeadline)} (~${hoursLeft(appealDeadline)}h left). If no appeal is filed, finalize then settle.`
                 : "The appeal window has closed. Finalize the decision, then settle the bonds.")}
-            {dispute.status === "APPEALED" && "The appeal panel re-runs the review with new evidence and a higher burden."}
-            {dispute.status === "FINAL" && "The decision is final. Settlement transfers the bonded pot."}
-            {dispute.status === "SETTLED" && "Bonds have been distributed. Claim payouts from the wallet menu."}
+            {dispute.status === "APPEALED" && "The appeal was filed with new evidence. Anyone can trigger the appeal review once the appeal window closes; the panel applies a higher (clear-and-convincing) standard."}
+            {dispute.status === "FINAL" && "The decision is final. Settlement transfers/refunds the bonded pot according to the final outcome."}
+            {dispute.status === "SETTLED" && "Bonds have been distributed. Claim payouts from the wallet menu or My account."}
           </p>
         </div>
         <div className="actions__buttons">
@@ -416,25 +444,27 @@ export function DisputeDetail({ dispute, match, rulebook, address, admin, busy, 
           {dispute.status === "DECIDED" && (
             <>
               {appealOpen && isParty && (
-                <button className="btn btn--ghost" onClick={() => onAction("appeal", dispute)} disabled={!!busy}>
-                  Appeal · {formatGen(rulebook?.appeal_bond ?? "0")}
+                <button className="btn btn--ghost" onClick={() => onAction("appeal", dispute)} disabled={!!busy || !address}>
+                  {busy === "appeal" ? "Appealing…" : `Appeal · ${formatGen(rulebook?.appeal_bond ?? "0")}`}
                 </button>
               )}
+              {appealOpen && !isParty && address && (
+                <span className="muted small">Only the filing party or respondent can appeal while the window is open.</span>
+              )}
               {finalizeReady && (
-                <button className="btn btn--primary" onClick={() => onAction("finalize", dispute)} disabled={!!busy}>
+                <button className="btn btn--primary" onClick={() => onAction("finalize", dispute)} disabled={!!busy || !address}>
                   {busy === "finalize" ? "Finalizing…" : "Finalize decision"}
                 </button>
               )}
-              {!finalizeReady && !isParty && <span className="muted small">Waiting on the parties.</span>}
             </>
           )}
           {dispute.status === "APPEALED" && (
-            <button className="btn btn--primary" onClick={() => onAction("reviewAppeal", dispute)} disabled={!!busy}>
+            <button className="btn btn--primary" onClick={() => onAction("reviewAppeal", dispute)} disabled={!!busy || !address}>
               {busy === "reviewAppeal" ? "Reviewing appeal…" : "Review the appeal"}
             </button>
           )}
           {dispute.status === "FINAL" && (
-            <button className="btn btn--primary" onClick={() => onAction("settle", dispute)} disabled={!!busy}>
+            <button className="btn btn--primary" onClick={() => onAction("settle", dispute)} disabled={!!busy || !address}>
               {busy === "settle" ? "Settling…" : "Settle bonds"}
             </button>
           )}
